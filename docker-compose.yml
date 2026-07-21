@@ -16,5 +16,7 @@ services:
 
 networks:
   grimmory-network:
-    external: true
+    driver: macvlan
     name: ${NETWORK_NAME:-grimmory-network}
+    driver_opts:
+      parent: ${NETWORK_INTERFACE:-eth0}

@@ -43,6 +43,7 @@ JACKETT_API_KEY=tu_api_key_de_jackett
 BOOKDROP_FOLDER=/bookdrop
 POLL_INTERVAL=300
 NETWORK_NAME=grimmory-network
+NETWORK_INTERFACE=eth0
 ```
 
 ### 3. Iniciar los servicios
