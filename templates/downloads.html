@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Descargas - Grimmory Book Manager{% endblock %}
+{% block content %}
+<h1>Descargas</h1>
+
+<div class="toolbar">
+    <button class="btn"
+            hx-get="/api/downloads"
+            hx-target="#downloads-list"
+            hx-swap="innerHTML"
+            hx-trigger="load, every 5s">
+        Actualizar
+    </button>
+</div>
+
+<div id="downloads-list"
+     hx-get="/api/downloads"
+     hx-trigger="load"
+     hx-swap="innerHTML">
+</div>
+{% endblock %}

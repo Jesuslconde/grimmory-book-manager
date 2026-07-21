@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Grimmory Book Manager{% endblock %}
+{% block content %}
+<h1>Dashboard</h1>
+
+<div class="grid">
+    <div class="card">
+        <h3>Descargas</h3>
+        <div class="stat-grid">
+            <div class="stat">
+                <span class="stat-value">{{ download_status.total }}</span>
+                <span class="stat-label">Total</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value text-blue">{{ download_status.downloading }}</span>
+                <span class="stat-label">Descargando</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value text-green">{{ download_status.seeding }}</span>
+                <span class="stat-label">Seedando</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value text-yellow">{{ download_status.paused }}</span>
+                <span class="stat-label">Pausados</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Sincronizacion</h3>
+        <button class="btn btn-primary"
+                hx-post="/api/sync/force"
+                hx-target="#sync-result"
+                hx-swap="innerHTML">
+            Forzar sync
+        </button>
+        <div id="sync-result"></div>
+    </div>
+</div>
+
+<div class="card">
+    <h3>Eventos recientes</h3>
+    <div id="recent-events">
+        {% for e in recent_events %}
+        <div class="event-card">
+            <span class="badge badge-blue">{{ e['event_type'] }}</span>
+            <span>Book #{{ e['book_id'] or '?' }}</span>
+            <span class="text-muted">{{ e['old_value'] or '' }} &rarr; {{ e['new_value'] or '' }}</span>
+        </div>
+        {% else %}
+        <div class="empty-state">No hay eventos recientes</div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

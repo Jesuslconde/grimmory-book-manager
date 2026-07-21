@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Actividad - Grimmory Book Manager{% endblock %}
+{% block content %}
+<h1>Actividad de sincronizacion</h1>
+
+<div class="toolbar">
+    <button class="btn btn-primary"
+            hx-post="/api/sync/force"
+            hx-target="#sync-result"
+            hx-swap="innerHTML">
+        Forzar sync
+    </button>
+    <div id="sync-result"></div>
+</div>
+
+<div id="activity-list"
+     hx-get="/api/activity"
+     hx-trigger="load, every 30s"
+     hx-swap="innerHTML">
+</div>
+{% endblock %}

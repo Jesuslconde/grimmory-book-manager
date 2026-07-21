@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Biblioteca - Grimmory Book Manager{% endblock %}
+{% block content %}
+<h1>Biblioteca local</h1>
+
+<div class="search-bar">
+    <input type="text"
+           id="library-search"
+           name="q"
+           placeholder="Buscar en tu biblioteca..."
+           hx-get="/api/library"
+           hx-trigger="keyup changed delay:500ms"
+           hx-include="#library-search"
+           hx-target="#library-list"
+           hx-swap="innerHTML"
+           autofocus>
+</div>
+
+<div class="toolbar">
+    <select id="filter-type"
+            hx-get="/api/library"
+            hx-trigger="change"
+            hx-include="#library-search,#filter-type"
+            hx-target="#library-list"
+            hx-swap="innerHTML"
+            name="file_type">
+        <option value="">Todos los formatos</option>
+        <option value="EPUB">EPUB</option>
+        <option value="PDF">PDF</option>
+        <option value="CBX">CBX</option>
+        <option value="MOBI">MOBI</option>
+        <option value="AUDIOBOOK">Audiolibro</option>
+    </select>
+</div>
+
+<div id="library-list"
+     hx-get="/api/library"
+     hx-trigger="load"
+     hx-swap="innerHTML">
+</div>
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Configuracion - Grimmory Book Manager{% endblock %}
+{% block content %}
+<h1>Configuracion</h1>
+
+<form hx-post="/api/settings"
+      hx-target="#settings-feedback"
+      hx-swap="innerHTML"
+      class="settings-form">
+
+    <fieldset>
+        <legend>Grimmory</legend>
+        <label>URL del servidor
+            <input type="url" name="grimmory_url" value="{{ settings.get('grimmory_url', 'http://localhost:61987') }}">
+        </label>
+        <label>Usuario
+            <input type="text" name="grimmory_username" value="{{ settings.get('grimmory_username', 'admin') }}">
+        </label>
+        <label>Contrasena
+            <input type="password" name="grimmory_password" value="{{ settings.get('grimmory_password', '') }}">
+        </label>
+        <div class="form-actions">
+            <button type="button" class="btn"
+                    hx-post="/api/settings/test/grimmory"
+                    hx-target="#grimmory-status">
+                Test connection
+            </button>
+            <span id="grimmory-status"></span>
+        </div>
+    </fieldset>
+
+    <fieldset>
+        <legend>qBittorrent</legend>
+        <label>URL del servidor
+            <input type="url" name="qbit_url" value="{{ settings.get('qbit_url', 'http://localhost:8080') }}">
+        </label>
+        <label>Usuario
+            <input type="text" name="qbit_username" value="{{ settings.get('qbit_username', 'admin') }}">
+        </label>
+        <label>Contrasena
+            <input type="password" name="qbit_password" value="{{ settings.get('qbit_password', '') }}">
+        </label>
+        <div class="form-actions">
+            <button type="button" class="btn"
+                    hx-post="/api/settings/test/qbit"
+                    hx-target="#qbit-status">
+                Test connection
+            </button>
+            <span id="qbit-status"></span>
+        </div>
+    </fieldset>
+
+    <fieldset>
+        <legend>Jackett</legend>
+        <label>URL del servidor
+            <input type="url" name="jackett_url" value="{{ settings.get('jackett_url', 'http://localhost:9117') }}">
+        </label>
+        <label>API Key
+            <input type="text" name="jackett_api_key" value="{{ settings.get('jackett_api_key', '') }}">
+        </label>
+        <div class="form-actions">
+            <button type="button" class="btn"
+                    hx-post="/api/settings/test/jackett"
+                    hx-target="#jackett-status">
+                Test connection
+            </button>
+            <span id="jackett-status"></span>
+        </div>
+    </fieldset>
+
+    <fieldset>
+        <legend>Sincronizacion</legend>
+        <label>Carpeta bookdrop
+            <input type="text" name="bookdrop_folder" value="{{ settings.get('bookdrop_folder', '/bookdrop') }}">
+        </label>
+        <label>Intervalo de sync (segundos)
+            <input type="number" name="poll_interval" value="{{ settings.get('poll_interval', '300') }}">
+        </label>
+        <label>
+            <input type="checkbox" name="auto_update_path"
+                   {{ 'checked' if settings.get('auto_update_path', 'true') == 'true' }}>
+            Auto-actualizar path en qBittorrent
+        </label>
+        <label>
+            <input type="checkbox" name="notify_on_sync"
+                   {{ 'checked' if settings.get('notify_on_sync', 'true') == 'true' }}>
+            Registrar eventos en activity feed
+        </label>
+    </fieldset>
+
+    <button type="submit" class="btn btn-primary">Guardar configuracion</button>
+    <div id="settings-feedback"></div>
+</form>
+{% endblock %}

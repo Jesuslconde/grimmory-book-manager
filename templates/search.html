@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Buscar - Grimmory Book Manager{% endblock %}
+{% block content %}
+<h1>Buscar libros</h1>
+
+<div class="search-bar">
+    <input type="text"
+           id="search-input"
+           name="q"
+           placeholder="Titulo, autor, ISBN..."
+           hx-get="/api/search"
+           hx-trigger="keyup changed delay:500ms"
+           hx-target="#search-results"
+           hx-swap="innerHTML"
+           autofocus>
+</div>
+
+<div id="search-results">
+    <div class="empty-state">Escribe para buscar en Jackett</div>
+</div>
+
+<div id="download-feedback"></div>
+{% endblock %}

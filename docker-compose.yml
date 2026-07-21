@@ -1,0 +1,44 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8199:8199"
+    volumes:
+      - ./data:/app/data
+    env_file:
+      - .env
+    depends_on:
+      - grimmory
+      - qbittorrent
+      - jackett
+
+  grimmory:
+    image: grimmory/grimmory:latest
+    ports:
+      - "61987:61987"
+    volumes:
+      - grimmory_data:/data
+    environment:
+      - SERVER_PORT=61987
+
+  qbittorrent:
+    image: linuxserver/qbittorrent:latest
+    ports:
+      - "8080:8080"
+      - "6881:6881"
+    volumes:
+      - qbit_config:/config
+      - bookdrop_data:/bookdrop
+
+  jackett:
+    image: linuxserver/jackett:latest
+    ports:
+      - "9117:9117"
+    volumes:
+      - jackett_config:/config
+
+volumes:
+  grimmory_data:
+  qbit_config:
+  bookdrop_data:
+  jackett_config:
