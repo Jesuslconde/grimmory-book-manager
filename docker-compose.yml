@@ -12,10 +12,10 @@ services:
     labels:
       - "app.version=${APP_VERSION:-dev}"
     networks:
-      - ${NETWORK_NAME:-grimmory-network}
+      - app-network
 
 networks:
-  grimmory-network:
+  app-network:
     driver: macvlan
     name: ${NETWORK_NAME:-grimmory-network}
     driver_opts:
