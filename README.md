@@ -44,6 +44,7 @@ BOOKDROP_FOLDER=/bookdrop
 POLL_INTERVAL=300
 NETWORK_NAME=grimmory-network
 NETWORK_INTERFACE=eth0
+APP_IP=192.168.1.100
 ```
 
 ### 3. Iniciar los servicios
