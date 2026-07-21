@@ -47,7 +47,7 @@ POLL_INTERVAL=300
 ### 3. Iniciar los servicios
 
 ```bash
-docker compose up -d
+export $(cat .env | xargs) && docker compose up -d
 ```
 
 ### 4. Acceder a la aplicación
