@@ -3,6 +3,14 @@
 {% block content %}
 <h1>Dashboard</h1>
 
+{% if not configured %}
+<div class="card" style="border-color: var(--yellow); margin-bottom: 1rem;">
+    <h3 style="color: var(--yellow);">Configuracion pendiente</h3>
+    <p>Los servicios (Grimmory, qBittorrent, Jackett) aun no estan configurados.</p>
+    <a href="/settings" class="btn btn-primary" style="margin-top: 0.5rem;">Ir a configuracion</a>
+</div>
+{% else %}
+
 <div class="grid">
     <div class="card">
         <h3>Descargas</h3>
@@ -52,4 +60,6 @@
         {% endfor %}
     </div>
 </div>
+
+{% endif %}
 {% endblock %}

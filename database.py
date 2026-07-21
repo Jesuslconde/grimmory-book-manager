@@ -41,15 +41,15 @@ CREATE TABLE IF NOT EXISTS sync_events (
 """
 
 DEFAULT_SETTINGS = {
-    "grimmory_url": "http://localhost:61987",
-    "grimmory_username": "admin",
+    "grimmory_url": "",
+    "grimmory_username": "",
     "grimmory_password": "",
-    "qbit_url": "http://localhost:8080",
-    "qbit_username": "admin",
+    "qbit_url": "",
+    "qbit_username": "",
     "qbit_password": "",
-    "jackett_url": "http://localhost:9117",
+    "jackett_url": "",
     "jackett_api_key": "",
-    "bookdrop_folder": "/bookdrop",
+    "bookdrop_folder": "",
     "poll_interval": "300",
     "auto_update_path": "true",
     "notify_on_sync": "true",
