@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import logging
+import tempfile
 from dataclasses import dataclass
+from pathlib import Path
 
 import httpx
 
@@ -108,7 +110,7 @@ class QBitClient:
         save_path: str = "/bookdrop",
         tags: str = "grimmory",
         paused: bool = False,
-    ) -> bool:
+    ) -> tuple[bool, str]:
         data = {
             "savepath": save_path,
             "tags": tags,
@@ -118,11 +120,109 @@ class QBitClient:
             data["urls"] = urls
 
         try:
-            self._request("POST", "/api/v2/torrents/add", data=data)
-            return True
+            logger.info("Adding torrent via URL: %s", urls)
+            resp = self._request("POST", "/api/v2/torrents/add", data=data)
+            if resp.status_code == 200:
+                return True, ""
+            logger.warning("qBittorrent returned %s for URL add, falling back to file upload", resp.status_code)
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code != 409:
+                logger.error("Failed to add torrent (HTTP %s): %s", e.response.status_code, e)
+                return False, f"Error HTTP {e.response.status_code}"
         except Exception as e:
             logger.error("Failed to add torrent: %s", e)
-            return False
+            return False, str(e)
+
+        logger.info("Falling back to file upload for: %s", urls)
+        fallback_ok, fallback_err = self._add_torrent_via_file_upload(urls, save_path, tags, paused)
+        if fallback_ok:
+            return True, ""
+        return False, fallback_err or "No se pudo descargar el archivo torrent desde la URL"
+
+    def _send_magnet_to_qbit(self, magnet: str, save_path: str, tags: str, paused: bool) -> tuple[bool, str]:
+        data = {
+            "savepath": save_path,
+            "tags": tags,
+            "paused": "true" if paused else "false",
+            "urls": magnet,
+        }
+        session = self._get_session()
+        url = f"{self.base_url}/api/v2/torrents/add"
+        headers = {"Referer": self.base_url}
+        response = session.post(url, data=data, headers=headers)
+        if response.status_code == 403:
+            self._login()
+            response = session.post(url, data=data, headers=headers)
+        response.raise_for_status()
+        return True, ""
+
+    def _add_torrent_via_file_upload(
+        self,
+        urls: str,
+        save_path: str,
+        tags: str,
+        paused: bool,
+    ) -> tuple[bool, str]:
+        if not urls.startswith(("http://", "https://")):
+            return False, "La URL no es accesible para descarga directa"
+
+        try:
+            logger.info("Fallback: downloading from %s", urls)
+            resp = httpx.get(urls, timeout=30, follow_redirects=False)
+
+            if resp.status_code in (301, 302, 303, 307, 308):
+                location = resp.headers.get("location", "")
+                if location.startswith("magnet:"):
+                    logger.info("Fallback: redirect to magnet link")
+                    return self._send_magnet_to_qbit(location, save_path, tags, paused)
+
+            resp.raise_for_status()
+            content = resp.content
+            text = content.decode("utf-8", errors="replace").strip()
+
+            if text.startswith("magnet:"):
+                logger.info("Fallback: URL returned a magnet link, passing to qBittorrent")
+                return self._send_magnet_to_qbit(text, save_path, tags, paused)
+
+            magnet_idx = text.find("magnet:")
+            if magnet_idx != -1:
+                magnet = text[magnet_idx:].split()[0]
+                logger.info("Fallback: extracted magnet link from response")
+                return self._send_magnet_to_qbit(magnet, save_path, tags, paused)
+
+            if not content or len(content) < 20:
+                return False, "El archivo torrent descargado está vacío o es demasiado pequeño"
+
+            suffix = ".torrent"
+            with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
+                tmp.write(content)
+                tmp_path = Path(tmp.name)
+
+            logger.info("Fallback: uploading .torrent file (%d bytes) to qBittorrent", len(content))
+            session = self._get_session()
+            url = f"{self.base_url}/api/v2/torrents/add"
+            headers = {"Referer": self.base_url}
+            form_data = {
+                "savepath": save_path,
+                "tags": tags,
+                "paused": "true" if paused else "false",
+            }
+            with open(tmp_path, "rb") as f:
+                files = {"torrents": (tmp_path.name, f, "application/x-bittorrent")}
+                response = session.post(url, data=form_data, files=files, headers=headers)
+                if response.status_code == 403:
+                    self._login()
+                    response = session.post(url, data=form_data, files=files, headers=headers)
+            tmp_path.unlink(missing_ok=True)
+            response.raise_for_status()
+            logger.info("Fallback: torrent uploaded successfully via file")
+            return True, ""
+        except httpx.HTTPStatusError as e:
+            logger.error("Fallback file upload failed (HTTP %s): %s", e.response.status_code, e)
+            return False, f"Error subiendo el archivo torrent: HTTP {e.response.status_code}"
+        except Exception as e:
+            logger.error("Fallback file upload failed: %s", e)
+            return False, f"Error descargando/subiendo torrent: {e}"
 
     def delete_torrent(self, torrent_hash: str, delete_files: bool = False) -> bool:
         data = {

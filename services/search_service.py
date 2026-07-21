@@ -28,7 +28,7 @@ class SearchService:
     def search(
         self,
         query: str,
-        indexer: str = "all",
+        indexer: str = "epublibre",
         db: Session | None = None,
     ) -> list[EnrichedResult]:
         results = self.jackett.search(query, indexer=indexer)

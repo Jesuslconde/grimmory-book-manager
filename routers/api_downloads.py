@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Request
+import logging
+
+from fastapi import APIRouter, Form, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
@@ -7,6 +9,8 @@ from database import get_db
 from settings_service import get_all_settings
 from clients.qbit_client import QBitClient
 from services.download_service import DownloadService
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -65,7 +69,10 @@ class DownloadRequest(BaseModel):
 
 
 @router.post("/api/downloads")
-async def add_download(request: Request, download_url: str = "", title: str = ""):
+async def add_download(request: Request, download_url: str = Form(""), title: str = Form("")):
+    logger.info("POST /api/downloads received: download_url=%r title=%r", download_url, title)
+    logger.info("POST /api/downloads content_type=%s", request.headers.get("content-type"))
+
     db = next(get_db())
     settings = get_all_settings(db)
 
@@ -77,7 +84,8 @@ async def add_download(request: Request, download_url: str = "", title: str = ""
     svc = DownloadService(qbit)
     bookdrop = settings.get("bookdrop_folder", "/bookdrop")
 
-    download = svc.add_download(download_url=download_url, title=title, save_path=bookdrop, db=db)
+    logger.info("POST /api/downloads resolved: download_url=%r title=%r bookdrop=%r", download_url, title, bookdrop)
+    download, error_msg = svc.add_download(download_url=download_url, title=title, save_path=bookdrop, db=db)
 
     if download:
         return HTMLResponse(f"""
@@ -85,9 +93,10 @@ async def add_download(request: Request, download_url: str = "", title: str = ""
             Añadido: {title}
         </div>
         """)
+    safe_error = error_msg.replace("<", "&lt;").replace(">", "&gt;") if error_msg else "Error desconocido"
     return HTMLResponse(f"""
     <div class="toast toast-error">
-        Error al añadir: {title}
+        Error al añadir: {title}<br><small>{safe_error}</small>
     </div>
     """)
 

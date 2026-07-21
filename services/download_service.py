@@ -21,10 +21,10 @@ class DownloadService:
         title: str,
         save_path: str = "/bookdrop",
         db: Session | None = None,
-    ) -> Download | None:
-        success = self.qbit.add_torrent(urls=download_url, save_path=save_path, tags="grimmory")
+    ) -> tuple[Download | None, str]:
+        success, error_msg = self.qbit.add_torrent(urls=download_url, save_path=save_path, tags="grimmory")
         if not success:
-            return None
+            return None, error_msg
 
         if db:
             existing = db.query(Download).filter(Download.title == title).first()
@@ -34,7 +34,7 @@ class DownloadService:
                 existing.save_path = save_path
                 db.commit()
                 db.refresh(existing)
-                return existing
+                return existing, ""
 
             download = Download(
                 title=title,
@@ -45,9 +45,9 @@ class DownloadService:
             db.add(download)
             db.commit()
             db.refresh(download)
-            return download
+            return download, ""
 
-        return Download(title=title, download_url=download_url, save_path=save_path, status="downloading")
+        return Download(title=title, download_url=download_url, save_path=save_path, status="downloading"), ""
 
     def remove_download(self, torrent_hash: str, delete_files: bool = False, db: Session | None = None) -> bool:
         success = self.qbit.delete_torrent(torrent_hash, delete_files=delete_files)

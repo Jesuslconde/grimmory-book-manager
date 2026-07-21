@@ -22,6 +22,6 @@ BOOKDROP_FOLDER = os.getenv("BOOKDROP_FOLDER", "")
 POLL_INTERVAL = int(os.getenv("POLL_INTERVAL", "300"))
 
 HOST = os.getenv("HOST", "0.0.0.0")
-PORT = int(os.getenv("PORT", "8199"))
+PORT = int(os.getenv("PORT", "80"))
 
 DB_PATH = os.getenv("DB_PATH", "data/bookmanager.db")
