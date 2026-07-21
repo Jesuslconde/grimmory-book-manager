@@ -6,16 +6,8 @@ services:
         APP_VERSION: "${APP_VERSION:-dev}"
     image: grimmory-book-manager:${APP_VERSION:-latest}
     ports:
-      - "80:80"
+      - "${PORT:-8099}:${PORT:-8099}"
     volumes:
       - ./data:/app/data
     labels:
       - "app.version=${APP_VERSION:-dev}"
-    networks:
-      app-network:
-        ipv4_address: ${APP_IP:-}
-
-networks:
-  app-network:
-    external: true
-    name: ${NETWORK_NAME:-grimmory-network}
