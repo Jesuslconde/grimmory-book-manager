@@ -32,21 +32,14 @@ cd grimmory-book-manager
 Crea un archivo `.env` en la raíz del proyecto:
 
 ```env
-# Grimmory
 GRIMMORY_URL=http://grimmory:61987
 GRIMMORY_USERNAME=admin
 GRIMMORY_PASSWORD=admin
-
-# qBittorrent
 QBIT_URL=http://qbittorrent:8080
 QBIT_USERNAME=admin
 QBIT_PASSWORD=adminadmin
-
-# Jackett
 JACKETT_URL=http://jackett:9117
 JACKETT_API_KEY=tu_api_key_de_jackett
-
-# Opcional
 BOOKDROP_FOLDER=/bookdrop
 POLL_INTERVAL=300
 ```
@@ -61,12 +54,39 @@ docker compose up -d
 
 Abre `http://localhost` en tu navegador.
 
+## Despliegue con Portainer
+
+1. En Portainer, ve a **Stacks > Add stack**.
+2. Selecciona **Repository** y apunta a `https://github.com/Jesuslconde/grimmory-book-manager`.
+3. En **_env file**, pega el contenido de `stack.env` y ajusta los valores (especialmente `JACKETT_API_KEY`).
+4. Despliega el stack.
+
 ## Configuración inicial
 
 1. Ve a la pantalla de **Configuración** desde el dashboard.
 2. Introduce las URLs y credenciales de Grimmory, qBittorrent y Jackett.
 3. Usa el botón "Probar conexión" para verificar que cada servicio está accesible.
 4. Configura la carpeta **Bookdrop** (donde qBittorrent guardará las descargas).
+
+## Versiones
+
+La versión se define en el archivo `VERSION` en la raíz del proyecto. El endpoint `GET /api/version` devuelve la versión actual.
+
+Para generar una nueva release:
+
+```bash
+echo "1.1.0" > VERSION
+git add VERSION
+git commit -m "Bump version to 1.1.0"
+git tag v1.1.0
+git push origin main --tags
+```
+
+Para construir una imagen Docker con una versión específica:
+
+```bash
+APP_VERSION=1.1.0 docker compose build
+```
 
 ## Desarrollo local
 

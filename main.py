@@ -7,6 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from database import init_db, engine
+from config import VERSION
 from settings_service import SettingsService
 from routers import pages, api_settings, api_search, api_downloads, api_library, api_sync
 
@@ -95,4 +96,9 @@ app.include_router(api_sync.router)
 
 @app.get("/health")
 def health():
-    return {"status": "ok"}
+    return {"status": "ok", "version": VERSION}
+
+
+@app.get("/api/version")
+def version():
+    return {"version": VERSION}
