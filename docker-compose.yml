@@ -11,3 +11,10 @@ services:
       - ./data:/app/data
     labels:
       - "app.version=${APP_VERSION:-dev}"
+    networks:
+      - ${NETWORK_NAME:-grimmory-network}
+
+networks:
+  grimmory-network:
+    external: true
+    name: ${NETWORK_NAME:-grimmory-network}
