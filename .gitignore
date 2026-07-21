@@ -1,6 +1,5 @@
 data/
-.env
-stack.env
+.env<
 __pycache__/
 *.pyc
 .venv/
